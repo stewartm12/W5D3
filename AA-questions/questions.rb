@@ -17,12 +17,12 @@ class Question
   attr_accessor :id, :title, :body, :user_id
 
   def self.find_by_id(id)
-    data = QuestionDBConnection.instance.execute(<<-SQL, id)
+    q = QuestionDBConnection.instance.execute(<<-SQL, id)
       SELECT *
       FROM questions
       WHERE id = ?
     SQL
-    data.map{ |datum| Question.new(datum)} 
+    Question.new(q)
   end
 
   def self.find_by_author_id(author_id)
@@ -56,12 +56,12 @@ class User
   attr_accessor :id, :fname, :lname
 
   def self.find_by_id(id)
-    data = QuestionDBConnection.instance.execute(<<-SQL, id)
+    u = QuestionDBConnection.instance.execute(<<-SQL, id)
       SELECT *
       FROM users
       WHERE id = ?
     SQL
-    data.map{|datum| User.new(datum)} 
+    User.new(u)
   end
 
   def self.find_by_name(fname, lname)
@@ -94,12 +94,12 @@ class QuestionFollow
   attr_accessor :id, :user_id, :question_id
 
   def self.find_by_id(id)
-    data = QuestionDBConnection.instance.execute(<<-SQL, id)
+    qf = QuestionDBConnection.instance.execute(<<-SQL, id)
       SELECT *
       FROM question_follows
       WHERE id = ?
     SQL
-    data.map{|datum| QuestionFollow.new(datum)} 
+    QuestionFollow.new(qf)
   end
 
   def initialize(options)
@@ -115,12 +115,12 @@ class Reply
   attr_accessor :id, :body, :parent_id, :user_id, :question_id
 
   def self.find_by_id(id)
-    data = QuestionDBConnection.instance.execute(<<-SQL, id)
+    r = QuestionDBConnection.instance.execute(<<-SQL, id)
       SELECT *
       FROM replies
       WHERE id = ?
     SQL
-    data.map{|datum| Reply.new(datum)} 
+    Reply.new(r)
   end
 
   def self.find_by_user_id(user_id)
@@ -175,12 +175,12 @@ class QuestionLike
   attr_accessor :id, :user_id, :question_id
 
   def self.find_by_id(id)
-    data = QuestionDBConnection.instance.execute(<<-SQL, id)
+    ql = QuestionDBConnection.instance.execute(<<-SQL, id)
       SELECT *
       FROM question_likes
       WHERE id = ?
     SQL
-    data.map{|datum| QuestionLike.new(datum)} 
+    QuestionLike.new(ql)
   end
 
   def initialize(options)
