@@ -34,6 +34,10 @@ class Question
     data.map{ |datum| Question.new(datum)} 
   end
 
+  def self.most_followed(n)
+    QuestionFollow::most_followed_questions(n)
+  end
+
   def initialize(options)
     @id = options['id']
     @title = options['title']
@@ -51,6 +55,14 @@ class Question
 
   def followers
     QuestionFollow::followers_for_question_id(id)
+  end
+
+  def likers
+    QuestionLike::likers_for_question_id(id)
+  end
+
+  def num_likes
+    QuestionLike::num_likes_for_question_id(id)
   end
 end
 
@@ -93,6 +105,10 @@ class User
 
   def followed_questions
     QuestionFollow::followed_questions_for_user_id(id)
+  end
+
+  def liked_questions
+    QuestionLike::liked_question_for_user_id(id)
   end
 end
 
@@ -228,6 +244,39 @@ class QuestionLike
       WHERE id = ?
     SQL
     QuestionLike.new(ql.first)
+  end
+
+  def self.likers_for_question_id(question_id)
+    likers = QuestionDBConnection.instance.execute(<<-SQL, question_id)
+      SELECT *
+      FROM users
+      JOIN question_likes
+      ON users.id = question_likes.user_id
+      WHERE question_id = ?
+    SQL
+    likers.map{|datum| User.new(datum)} 
+  end
+
+  def self.num_likes_for_question_id(question_id)
+    likes = QuestionDBConnection.instance.execute(<<-SQL, question_id)
+      SELECT COUNT(*) 
+      FROM users
+      JOIN question_likes
+      ON users.id = question_likes.user_id
+      WHERE question_id = ?
+    SQL
+    return likes.first 
+  end
+
+  def self.liked_question_for_user_id(user_id)
+    liked = QuestionDBConnection.instance.execute(<<-SQL, user_id)
+      SELECT *
+      FROM questions
+      JOIN question_likes
+      ON questions.id = question_likes.question_id
+      WHERE user_id = ?
+    SQL
+    liked.map{|datum| User.new(datum)} 
   end
 
   def initialize(options)
