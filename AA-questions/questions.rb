@@ -134,6 +134,21 @@ class QuestionFollow
     questions.map{|q| Question.new(q)} 
   end
 
+  def self.most_followed_questions(n)
+    questions = QuestionDBConnection.instance.execute(<<-SQL, n)
+      SELECT *
+      FROM questions
+      JOIN question_follows AS qf
+      ON questions.id = qf.question_id
+      GROUP BY qf.question_id
+      HAVING COUNT(*)
+      ORDER BY COUNT(*) DESC
+      LIMIT ?
+    SQL
+
+    questions.map{|q| Question.new(q)} 
+  end
+
   def initialize(options)
     @id = options['id']
     @user_id = options['user_id']
