@@ -22,7 +22,7 @@ class Question
       FROM questions
       WHERE id = ?
     SQL
-    Question.new(q)
+    Question.new(q.first)
   end
 
   def self.find_by_author_id(author_id)
@@ -65,7 +65,7 @@ class User
       FROM users
       WHERE id = ?
     SQL
-    User.new(u)
+    User.new(u.first)
   end
 
   def self.find_by_name(fname, lname)
@@ -107,7 +107,7 @@ class QuestionFollow
       FROM question_follows
       WHERE id = ?
     SQL
-    QuestionFollow.new(qf)
+    QuestionFollow.new(qf.first)
   end
 
   def self.followers_for_question_id(question_id)
@@ -123,7 +123,7 @@ class QuestionFollow
   end
 
   def self.followed_questions_for_user_id(user_id)
-    users = QuestionDBConnection.instance.execute(<<-SQL, user_id)
+    questions = QuestionDBConnection.instance.execute(<<-SQL, user_id)
       SELECT *
       FROM questions
       JOIN question_follows
@@ -131,7 +131,7 @@ class QuestionFollow
       WHERE question_follows.user_id = ?
     SQL
 
-    users.map{|user| User.new(user)} 
+    questions.map{|q| Question.new(q)} 
   end
 
   def initialize(options)
@@ -152,7 +152,7 @@ class Reply
       FROM replies
       WHERE id = ?
     SQL
-    Reply.new(r)
+    Reply.new(r.first)
   end
 
   def self.find_by_user_id(user_id)
@@ -212,7 +212,7 @@ class QuestionLike
       FROM question_likes
       WHERE id = ?
     SQL
-    QuestionLike.new(ql)
+    QuestionLike.new(ql.first)
   end
 
   def initialize(options)

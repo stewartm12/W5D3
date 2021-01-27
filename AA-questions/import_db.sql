@@ -52,35 +52,6 @@ CREATE TABLE question_likes (
   FOREIGN KEY(question_id) REFERENCES questions(id)
 );
 
-INSERT INTO users 
-  (fname, lname)
-VALUES
-  ("Stewart", "Morales"),
-  ("Kevin", "Mao");
-
-INSERT INTO questions 
-  (title, body, user_id)
-VALUES
-  ("SM question", "What is a sun?", 
-  (
-    SELECT id
-    FROM users
-    WHERE fname = "Stewart" AND lname = 'Morales'
-  )),
-  ("KM question", "What is a moon?",
-  (
-    SELECT id
-    FROM users
-    WHERE fname = "Kevin" AND lname = 'Mao'
-  ));
-
-
-
-
-
-
-
-
 INSERT INTO
   users (fname, lname)
 VALUES
@@ -155,3 +126,25 @@ VALUES
 -- and here is the lazy way to add some seed data:
 INSERT INTO question_likes (user_id, question_id) VALUES (1, 1);
 INSERT INTO question_likes (user_id, question_id) VALUES (1, 2);
+
+-- INSERT INTO users 
+--   (fname, lname)
+-- VALUES
+--   ("Stewart", "Morales"),
+--   ("Kevin", "Mao");
+
+-- INSERT INTO questions 
+--   (title, body, user_id)
+-- VALUES
+--   ("SM question", "What is a sun?", 
+--   (
+--     SELECT id
+--     FROM users
+--     WHERE fname = "Stewart" AND lname = 'Morales'
+--   )),
+--   ("KM question", "What is a moon?",
+--   (
+--     SELECT id
+--     FROM users
+--     WHERE fname = "Kevin" AND lname = 'Mao'
+--   ));
