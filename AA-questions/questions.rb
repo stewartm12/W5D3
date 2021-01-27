@@ -11,6 +11,7 @@ class QuestionDBConnection < SQLite3::Database
   end
 end
 
+#####################################################################################################
 
 class Question
   attr_accessor :id, :title, :body, :user_id
@@ -40,7 +41,16 @@ class Question
     @user_id = options['user_id']
   end
 
+  def author 
+    User::find_by_id(user_id)
+  end
+
+  def replies 
+    Reply::find_by_question_id(id)
+  end
 end
+
+################################################################################################
 
 class User
   attr_accessor :id, :fname, :lname
@@ -72,7 +82,13 @@ class User
   def authored_questions
     Question::find_by_author_id(id)
   end
+
+  def authored_replies
+    Reply::find_by_user_id(id)
+  end
 end
+
+#########################################################################################
 
 class QuestionFollow
   attr_accessor :id, :user_id, :question_id
@@ -92,6 +108,8 @@ class QuestionFollow
     @question_id = options['question_id']
   end
 end
+
+########################################################################################
 
 class Reply
   attr_accessor :id, :body, :parent_id, :user_id, :question_id
@@ -130,8 +148,29 @@ class Reply
     @user_id = options['user_id']
     @question_id = options['question_id']
   end 
-end
 
+  def author
+    User::find_by_id(user_id)
+  end 
+
+  def question
+    Question::find_by_id(question_id)
+  end 
+  
+  def parent_reply
+    Reply::find_by_id(parent_id)
+  end
+
+  def child_replies
+    data = QuestionDBConnection.instance.execute(<<-SQL, id)
+    SELECT *
+      FROM replies
+      WHERE parent_id = ?
+    SQL
+    data.map{|datum| Reply.new(datum)} 
+  end
+end
+##################################################################################
 class QuestionLike
   attr_accessor :id, :user_id, :question_id
 

@@ -1,5 +1,12 @@
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS question_follows;
+DROP TABLE IF EXISTS question_likes;
+DROP TABLE IF EXISTS replies;
+DROP TABLE IF EXISTS questions;
+DROP TABLE IF EXISTS users;
+
+
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   fname TEXT NOT NULL,
@@ -66,3 +73,85 @@ VALUES
     FROM users
     WHERE fname = "Kevin" AND lname = 'Mao'
   ));
+
+
+
+
+
+
+
+
+INSERT INTO
+  users (fname, lname)
+VALUES
+  ("Ned", "Ruggeri"), ("Kush", "Patel"), ("Earl", "Cat");
+
+
+INSERT INTO
+  questions (title, body, user_id)
+SELECT
+  "Ned Question", "NED NED NED", 1
+FROM
+  users
+WHERE
+  users.fname = "Ned" AND users.lname = "Ruggeri";
+
+INSERT INTO
+  questions (title, body, user_id)
+SELECT
+  "Kush Question", "KUSH KUSH KUSH", users.id
+FROM
+  users
+WHERE
+  users.fname = "Kush" AND users.lname = "Patel";
+
+INSERT INTO
+  questions (title, body, user_id)
+SELECT
+  "Earl Question", "MEOW MEOW MEOW", users.id
+FROM
+  users
+WHERE
+  users.fname = "Earl" AND users.lname = "Cat";
+
+
+INSERT INTO
+  question_follows (user_id, question_id)
+VALUES
+  ((SELECT id FROM users WHERE fname = "Ned" AND lname = "Ruggeri"),
+  (SELECT id FROM questions WHERE title = "Earl Question")),
+
+  ((SELECT id FROM users WHERE fname = "Kush" AND lname = "Patel"),
+  (SELECT id FROM questions WHERE title = "Earl Question")
+);
+
+
+INSERT INTO
+  replies (question_id, parent_id, user_id, body)
+VALUES
+  ((SELECT id FROM questions WHERE title = "Earl Question"),
+  NULL,
+  (SELECT id FROM users WHERE fname = "Ned" AND lname = "Ruggeri"),
+  "Did you say NOW NOW NOW?"
+);
+
+INSERT INTO
+  replies (question_id, parent_id, user_id, body)
+VALUES
+  ((SELECT id FROM questions WHERE title = "Earl Question"),
+  (SELECT id FROM replies WHERE body = "Did you say NOW NOW NOW?"),
+  (SELECT id FROM users WHERE fname = "Kush" AND lname = "Patel"),
+  "I think he said MEOW MEOW MEOW."
+);
+
+
+INSERT INTO
+  question_likes (user_id, question_id)
+VALUES
+  ((SELECT id FROM users WHERE fname = "Kush" AND lname = "Patel"),
+  (SELECT id FROM questions WHERE title = "Earl Question")
+);
+
+-- and here is the lazy way to add some seed data:
+INSERT INTO question_likes (user_id, question_id) VALUES (1, 1);
+INSERT INTO question_likes (user_id, question_id) VALUES (1, 2);
