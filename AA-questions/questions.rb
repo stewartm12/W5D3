@@ -38,6 +38,10 @@ class Question
     QuestionFollow::most_followed_questions(n)
   end
 
+  def self.most_liked(n)
+    QuestionLike::most_liked_questions(n)
+  end
+
   def initialize(options)
     @id = options['id']
     @title = options['title']
@@ -109,6 +113,18 @@ class User
 
   def liked_questions
     QuestionLike::liked_question_for_user_id(id)
+  end
+
+  def average_karma
+    average = QuestionDBConnection.instance.execute(<<-SQL, id
+      SELECT CAST(COUNT(question_id) AS FLOAT)/ COUNT(DISTINCT title) AS average_karma
+      FROM questions
+      LEFT OUTER JOIN question_likes AS ql
+      ON questions.id = ql.question_id
+      WHERE questions.user_id = ?
+    SQL
+    
+    return average.first['average_karma']
   end
 end
 
@@ -277,6 +293,20 @@ class QuestionLike
       WHERE user_id = ?
     SQL
     liked.map{|datum| User.new(datum)} 
+  end
+
+  def self.most_liked_questions(n)
+    amount =  QuestionDBConnection.instance.execute(<<-SQL, n)
+      SELECT *
+      FROM questions
+      JOIN question_likes AS ql
+      ON questions.id = ql.question_id
+      GROUP BY ql.question_id
+      HAVING COUNT(*)
+      ORDER BY COUNT(*) DESC
+      LIMIT ?
+    SQL
+    amount.map{|datum| Question.new(datum)} 
   end
 
   def initialize(options)
