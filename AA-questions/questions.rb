@@ -49,6 +49,23 @@ class Question
     @user_id = options['user_id']
   end
 
+  def save
+    update if id
+    QuestionDBConnection.instance.execute(<<-SQL, @title, @body, @user_id)
+      INSERT INTO questions (title, body, user_id)
+      VALUES (?, ?, ?)
+    SQL
+    @id = QuestionDBConnection.instance.last_insert_row_id
+  end
+
+  def update
+    QuestionDBConnection.instance.execute(<<-SQL, @title, @body, @user_id, @id)
+      UPDATE questions
+      SET title = ?, body = ?, user_id = ?
+      WHERE id = ?
+    SQL
+  end
+
   def author 
     User::find_by_id(user_id)
   end
@@ -99,6 +116,23 @@ class User
     @lname = options['lname']
   end
 
+  def save
+    update if id
+    QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname)
+      INSERT INTO users (fname, lname)
+      VALUES (?, ?)
+    SQL
+    @id = QuestionDBConnection.instance.last_insert_row_id
+  end
+
+  def update
+    QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname, @id)
+      UPDATE users
+      SET fname = ?, lname = ?
+      WHERE id = ?
+    SQL
+  end
+
   def authored_questions
     Question::find_by_author_id(id)
   end
@@ -123,7 +157,7 @@ class User
       ON questions.id = ql.question_id
       WHERE questions.user_id = ?
     SQL
-    
+
     return average.first['average_karma']
   end
 end
@@ -226,7 +260,24 @@ class Reply
     @parent_id = options['parent_id']
     @user_id = options['user_id']
     @question_id = options['question_id']
-  end 
+  end
+
+  def save
+    update if id
+    QuestionDBConnection.instance.execute(<<-SQL, @body, @parent_id, @user_id, @question_id)
+      INSERT INTO replies (body, parent_id, user_id, question_id)
+      VALUES (?, ?, ?, ?)
+    SQL
+    @id = QuestionDBConnection.instance.last_insert_row_id
+  end
+
+  def update
+    QuestionDBConnection.instance.execute(<<-SQL, @body, @parent_id, @user_id, @question_id, @id)
+      UPDATE replies
+      SET body = ?, parent_id = ?, user_id = ?, question_id = ?
+      WHERE id = ?
+    SQL
+  end
 
   def author
     User::find_by_id(user_id)
